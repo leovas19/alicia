@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f5efe5;
+  --background-soft: rgba(255, 250, 243, 0.84);
+  --surface: rgba(255, 248, 241, 0.74);
+  --surface-strong: rgba(255, 251, 247, 0.92);
+  --foreground: #241a17;
+  --muted: #6d5a56;
+  --border: rgba(77, 49, 43, 0.12);
+  --accent: #8f544f;
+  --accent-soft: rgba(143, 84, 79, 0.12);
+  --gold: #c6a46c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--foreground);
+  background:
+    radial-gradient(circle at top left, rgba(228, 199, 192, 0.5), transparent 30%),
+    radial-gradient(circle at 85% 15%, rgba(198, 164, 108, 0.16), transparent 18%),
+    linear-gradient(180deg, #fcf8f0 0%, #f4ebdf 44%, #f5efe5 100%);
+  font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+::selection {
+  background: rgba(143, 84, 79, 0.18);
+}
+
+.title-font {
+  font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+}
+
+.app-shell {
+  width: min(100%, 1120px);
+  margin: 0 auto;
+  padding: 0 1rem 3rem;
+}
+
+.glass {
+  background: var(--surface);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  box-shadow: 0 18px 45px rgba(36, 26, 23, 0.08);
+}
+
+.panel {
+  background: var(--surface);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
+  box-shadow: 0 18px 45px rgba(36, 26, 23, 0.08);
+  @apply rounded-[28px] p-5 md:p-7;
+}
+
+.soft-ring {
+  box-shadow:
+    0 0 0 1px rgba(143, 84, 79, 0.12),
+    0 18px 45px rgba(36, 26, 23, 0.08);
+}
+
+.button-primary {
+  @apply inline-flex items-center justify-center rounded-full px-5 py-3 font-medium text-white transition duration-300;
+  background: linear-gradient(135deg, #8f544f, #b57a70);
+  box-shadow: 0 10px 24px rgba(143, 84, 79, 0.28);
+}
+
+.button-primary:hover {
+  transform: translateY(-1px);
+}
+
+.button-secondary {
+  @apply inline-flex items-center justify-center rounded-full px-5 py-3 font-medium transition duration-300;
+  background: rgba(255, 251, 247, 0.88);
+  border: 1px solid var(--border);
+}
+
+.button-secondary:hover {
+  background: white;
+}
+
+.input-field {
+  @apply w-full rounded-[20px] border px-4 py-3 outline-none transition;
+  border-color: rgba(77, 49, 43, 0.12);
+  background: rgba(255, 252, 248, 0.88);
+}
+
+.input-field:focus {
+  border-color: rgba(143, 84, 79, 0.36);
+  box-shadow: 0 0 0 4px rgba(143, 84, 79, 0.08);
+}
+
+.pill {
+  @apply inline-flex items-center rounded-full px-3 py-1 text-sm;
+  background: rgba(255, 255, 255, 0.48);
+  border: 1px solid var(--border);
+}
+
+.section-grid {
+  @apply grid gap-4 md:gap-6;
+}
+
+.fade-up {
+  animation: fadeUp 0.7s ease forwards;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(-12vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(115vh) rotate(640deg);
+    opacity: 0;
+  }
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -8vh;
+  width: 10px;
+  height: 18px;
+  border-radius: 999px;
+  animation-name: confettiFall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(143, 84, 79, 0.25) transparent;
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(143, 84, 79, 0.22);
+  border-radius: 999px;
+}

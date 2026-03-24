@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model AliciaUser {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  barsInitialized Boolean @default(false)
+  createdAt    DateTime @default(now())
+}
+
+model Book {
+  id            String     @id @default(cuid())
+  title         String
+  dateLabel     String?
+  coverImageUrl String?
+  sourceFileUrl String?
+  sourceFileName String?
+  sourceFileType String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  pages         BookPage[]
+}
+
+model BookPage {
+  id               String   @id @default(cuid())
+  bookId           String
+  pageNumber       Int
+  content          String
+  optionalImageUrl String?
+  book             Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([bookId, pageNumber])
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  mediaType String?
+  createdAt DateTime @default(now())
+}
+
+model ProgressBars {
+  id                String   @id @default(cuid())
+  trustValue        Int
+  relationshipValue Int
+  updatedAt         DateTime @updatedAt
+}
+
+model TruthQuestion {
+  id         String @id @default(cuid())
+  question   String
+  answer     String
+  orderIndex Int    @unique
+}
+
+model PlaylistItem {
+  id         String @id @default(cuid())
+  title      String
+  artist     String
+  url        String?
+  rating     Int    @default(0)
+  orderIndex Int    @unique
+}
+
+model Word {
+  id         String @id @default(cuid())
+  word       String
+  weight     Int
+  orderIndex Int?
+}
+
+model FreeSpaceMessage {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Challenge {
+  id        String   @id @default(cuid())
+  title     String
+  status    String
+  createdAt DateTime @default(now())
+}

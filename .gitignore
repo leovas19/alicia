@@ -1,0 +1,11 @@
+.next
+node_modules
+prisma/dev.db
+prisma/dev.db-journal
+.env
+dist
+coverage
+public/uploads/books/*
+public/uploads/photos/*
+!public/uploads/books/.gitkeep
+!public/uploads/photos/.gitkeep
