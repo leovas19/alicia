@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { upload } from "@vercel/blob/client";
 import { useRouter } from "next/navigation";
+import { inferClientMediaType, isSupportedImageType } from "@/lib/media-types";
 
 export function BookForm() {
   const router = useRouter();
@@ -33,24 +35,18 @@ export function BookForm() {
       const pageUrls: string[] = [];
 
       for (const file of files) {
-        const uploadResponse = await fetch("/api/upload/book-page", {
-          method: "POST",
-          headers: {
-            "Content-Type": file.type || "application/octet-stream",
-            "x-file-name": encodeURIComponent(file.name)
-          },
-          body: file
-        });
-
-        if (!uploadResponse.ok) {
-          const json = (await uploadResponse.json()) as { error?: string };
-          throw new Error(json.error || "Impossible d’envoyer les images.");
+        const mediaType = inferClientMediaType(file);
+        if (!isSupportedImageType(mediaType)) {
+          throw new Error(`${file.name}: format image non supporté.`);
         }
 
-        const uploadJson = (await uploadResponse.json()) as {
-          url: string;
-        };
-        pageUrls.push(uploadJson.url);
+        const blob = await upload(`books/${file.name}`, file, {
+          access: "public",
+          handleUploadUrl: "/api/blob/upload",
+          multipart: true
+        });
+
+        pageUrls.push(blob.url);
       }
 
       const response = await fetch("/api/books", {

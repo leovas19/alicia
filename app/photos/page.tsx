@@ -4,13 +4,9 @@ import { PhotoUploader } from "@/components/photo-uploader";
 import { prisma } from "@/lib/prisma";
 import { ensureSeedData } from "@/lib/seed";
 
-const PAGE_SIZE = 8;
+export const dynamic = "force-dynamic";
 
-type PhotoRow = {
-  id: string;
-  imageUrl: string;
-  mediaType: string | null;
-};
+const PAGE_SIZE = 8;
 
 export default async function PhotosPage({
   searchParams
@@ -20,26 +16,19 @@ export default async function PhotosPage({
   await ensureSeedData();
   const resolved = searchParams ? await searchParams : undefined;
   const rawPage = Number(resolved?.page || "1");
-  const [countRow] = (await prisma.$queryRawUnsafe(`
-    SELECT COUNT(*) AS total
-    FROM Photo
-  `)) as Array<{ total: number }>;
-  const total = Number(countRow?.total ?? 0);
+  const total = await prisma.photo.count();
 
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const currentPage = Math.min(totalPages, Math.max(1, Number.isFinite(rawPage) ? rawPage : 1));
   const skip = (currentPage - 1) * PAGE_SIZE;
 
-  const photos = (await prisma.$queryRawUnsafe(
-    `
-      SELECT id, imageUrl, mediaType
-      FROM Photo
-      ORDER BY createdAt DESC
-      LIMIT ? OFFSET ?
-    `,
-    PAGE_SIZE,
-    skip
-  )) as PhotoRow[];
+  const photos = await prisma.photo.findMany({
+    orderBy: {
+      createdAt: "desc"
+    },
+    skip,
+    take: PAGE_SIZE
+  });
 
   return (
     <div className="space-y-6 pb-4 pt-6">

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { hashPassword, verifyPassword } from "@/lib/auth";
+import { initialVisitedPlaces } from "@/lib/visited-places";
 
 const truthSeed = [
   {
@@ -49,7 +50,7 @@ const wordsSeed = [
 ] as const;
 
 export async function ensureSeedData() {
-  const [userCount, barsCount, truthCount, playlistCount, wordsCount, messagesCount, challengesCount, booksCount] =
+  const [userCount, barsCount, truthCount, playlistCount, wordsCount, messagesCount, challengesCount, booksCount, visitedPlacesCount] =
     await Promise.all([
       prisma.aliciaUser.count(),
       prisma.progressBars.count(),
@@ -58,7 +59,8 @@ export async function ensureSeedData() {
       prisma.word.count(),
       prisma.freeSpaceMessage.count(),
       prisma.challenge.count(),
-      prisma.book.count()
+      prisma.book.count(),
+      prisma.visitedPlace.count()
     ]);
 
   const targetUsername = process.env.ALICIA_USERNAME || "alicia";
@@ -108,6 +110,15 @@ export async function ensureSeedData() {
       data: wordsSeed.map(([word, weight], index) => ({
         word,
         weight,
+        orderIndex: index + 1
+      }))
+    });
+  }
+
+  if (visitedPlacesCount === 0) {
+    await prisma.visitedPlace.createMany({
+      data: initialVisitedPlaces.map((place, index) => ({
+        ...place,
         orderIndex: index + 1
       }))
     });

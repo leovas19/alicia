@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { upload } from "@vercel/blob/client";
 import { useRouter } from "next/navigation";
+import { inferClientMediaType, isSupportedMediaType } from "@/lib/media-types";
 
 export function PhotoUploader() {
   const router = useRouter();
@@ -32,13 +34,29 @@ export function PhotoUploader() {
 
       for (let index = 0; index < files.length; index += 1) {
         const file = files[index];
+        const mediaType = inferClientMediaType(file);
+
+        if (!isSupportedMediaType(mediaType)) {
+          failed.push(`${file.name}: format non supporté`);
+          setProgress({ current: index + 1, total: files.length });
+          continue;
+        }
+
+        const blob = await upload(`photos/${file.name}`, file, {
+          access: "public",
+          handleUploadUrl: "/api/blob/upload",
+          multipart: true
+        });
+
         const response = await fetch("/api/upload/photo", {
           method: "POST",
           headers: {
-            "Content-Type": file.type || "application/octet-stream",
-            "x-file-name": encodeURIComponent(file.name)
+            "Content-Type": "application/json"
           },
-          body: file
+          body: JSON.stringify({
+            url: blob.url,
+            mediaType
+          })
         });
 
         if (response.ok) {
@@ -93,7 +111,7 @@ export function PhotoUploader() {
       />
       <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-[var(--muted)]">
-          Tu peux envoyer un gros lot en une fois, y compris 83 fichiers, tant que chaque fichier respecte sa limite.
+          Tu peux envoyer un gros lot en une fois, y compris de gros fichiers, tant que chaque média reste dans un format reconnu.
         </p>
         <button className="button-primary" disabled={loading} type="submit">
           {loading ? "Ajout..." : "Ajouter un média"}

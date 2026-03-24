@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { readVisitedPlaces, writeVisitedPlaces } from "@/lib/visited-places";
+import { prisma } from "@/lib/prisma";
+import { ensureSeedData } from "@/lib/seed";
 
 export const runtime = "nodejs";
 
@@ -7,15 +8,23 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  await ensureSeedData();
   const { id } = await params;
-  const places = await readVisitedPlaces();
-  const nextPlaces = places.filter((place) => place.id !== id);
+  const place = await prisma.visitedPlace.findUnique({
+    where: {
+      id
+    }
+  });
 
-  if (nextPlaces.length === places.length) {
+  if (!place) {
     return NextResponse.json({ error: "Lieu introuvable." }, { status: 404 });
   }
 
-  await writeVisitedPlaces(nextPlaces);
+  await prisma.visitedPlace.delete({
+    where: {
+      id
+    }
+  });
 
   return NextResponse.json({ ok: true });
 }

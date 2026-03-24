@@ -1,6 +1,8 @@
 import { ensureSeedData } from "@/lib/seed";
 import { LandingChoice } from "@/components/landing-choice";
 
+export const dynamic = "force-dynamic";
+
 export default async function HomePage() {
   await ensureSeedData();
 

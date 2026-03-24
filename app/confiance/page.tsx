@@ -3,6 +3,8 @@ import { ProgressBar } from "@/components/progress-bar";
 import { prisma } from "@/lib/prisma";
 import { ensureSeedData } from "@/lib/seed";
 
+export const dynamic = "force-dynamic";
+
 export default async function TrustPage() {
   await ensureSeedData();
   const bars = await prisma.progressBars.findFirstOrThrow();

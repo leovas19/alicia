@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -87,4 +87,15 @@ model Challenge {
   title     String
   status    String
   createdAt DateTime @default(now())
+}
+
+model VisitedPlace {
+  id         String   @id @default(cuid())
+  name       String
+  country    String
+  note       String
+  latitude   Float
+  longitude  Float
+  orderIndex Int      @unique
+  createdAt  DateTime @default(now())
 }

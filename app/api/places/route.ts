@@ -1,15 +1,22 @@
-import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
-import { readVisitedPlaces, writeVisitedPlaces } from "@/lib/visited-places";
+import { prisma } from "@/lib/prisma";
+import { ensureSeedData } from "@/lib/seed";
 
 export const runtime = "nodejs";
 
 export async function GET() {
-  const places = await readVisitedPlaces();
+  await ensureSeedData();
+  const places = await prisma.visitedPlace.findMany({
+    orderBy: {
+      orderIndex: "asc"
+    }
+  });
+
   return NextResponse.json(places);
 }
 
 export async function POST(request: Request) {
+  await ensureSeedData();
   const body = (await request.json()) as {
     name?: string;
     country?: string;
@@ -36,18 +43,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Longitude invalide." }, { status: 400 });
   }
 
-  const places = await readVisitedPlaces();
-  const nextPlace = {
-    id: randomUUID(),
-    name,
-    country,
-    note,
-    latitude,
-    longitude
-  };
+  const maxOrder = await prisma.visitedPlace.aggregate({
+    _max: {
+      orderIndex: true
+    }
+  });
 
-  const nextPlaces = [...places, nextPlace];
-  await writeVisitedPlaces(nextPlaces);
+  const nextPlace = await prisma.visitedPlace.create({
+    data: {
+      name,
+      country,
+      note,
+      latitude,
+      longitude,
+      orderIndex: (maxOrder._max.orderIndex || 0) + 1
+    }
+  });
 
   return NextResponse.json(nextPlace, { status: 201 });
 }

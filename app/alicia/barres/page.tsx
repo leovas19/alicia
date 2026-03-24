@@ -5,6 +5,8 @@ import { requireAlicia } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ensureSeedData } from "@/lib/seed";
 
+export const dynamic = "force-dynamic";
+
 export default async function AliciaBarsPage() {
   await ensureSeedData();
   const username = await requireAlicia();

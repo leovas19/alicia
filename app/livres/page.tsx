@@ -4,6 +4,8 @@ import { PageIntro } from "@/components/page-intro";
 import { prisma } from "@/lib/prisma";
 import { ensureSeedData } from "@/lib/seed";
 
+export const dynamic = "force-dynamic";
+
 export default async function BooksPage() {
   await ensureSeedData();
   const books = await prisma.book.findMany({

@@ -4,6 +4,8 @@ import { getSessionUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ensureSeedData } from "@/lib/seed";
 
+export const dynamic = "force-dynamic";
+
 export default async function AliciaLoginPage() {
   await ensureSeedData();
   const sessionUser = await getSessionUser();

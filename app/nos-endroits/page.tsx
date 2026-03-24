@@ -1,9 +1,17 @@
 import { PageIntro } from "@/components/page-intro";
 import { WorldJourney } from "@/components/world-journey";
-import { readVisitedPlaces } from "@/lib/visited-places";
+import { prisma } from "@/lib/prisma";
+import { ensureSeedData } from "@/lib/seed";
+
+export const dynamic = "force-dynamic";
 
 export default async function PlacesPage() {
-  const visitedPlaces = await readVisitedPlaces();
+  await ensureSeedData();
+  const visitedPlaces = await prisma.visitedPlace.findMany({
+    orderBy: {
+      orderIndex: "asc"
+    }
+  });
 
   return (
     <div className="space-y-6 pb-4 pt-6">

@@ -1,34 +1,16 @@
 import { NextResponse } from "next/server";
-import { randomUUID } from "node:crypto";
 import { prisma } from "@/lib/prisma";
 import { ensureSeedData } from "@/lib/seed";
 
-type PlaylistRow = {
-  id: string;
-  title: string;
-  artist: string;
-  url: string | null;
-  rating: number | bigint | null;
-  orderIndex: number | bigint;
-};
-
-function normalizePlaylistRow(row: PlaylistRow) {
-  return {
-    ...row,
-    rating: Number(row.rating ?? 0),
-    orderIndex: Number(row.orderIndex)
-  };
-}
-
 export async function GET() {
   await ensureSeedData();
-  const items = (await prisma.$queryRawUnsafe(`
-    SELECT id, title, artist, url, COALESCE(rating, 0) AS rating, orderIndex
-    FROM PlaylistItem
-    ORDER BY orderIndex ASC
-  `)) as PlaylistRow[];
+  const items = await prisma.playlistItem.findMany({
+    orderBy: {
+      orderIndex: "asc"
+    }
+  });
 
-  return NextResponse.json(items.map(normalizePlaylistRow));
+  return NextResponse.json(items);
 }
 
 export async function POST(request: Request) {
@@ -49,36 +31,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Titre et artiste sont nécessaires." }, { status: 400 });
   }
 
-  const [maxOrderRow] = (await prisma.$queryRawUnsafe(`
-    SELECT COALESCE(MAX(orderIndex), 0) AS maxOrder
-    FROM PlaylistItem
-  `)) as Array<{ maxOrder: number | null }>;
+  const maxOrder = await prisma.playlistItem.aggregate({
+    _max: {
+      orderIndex: true
+    }
+  });
 
-  const id = randomUUID();
-  const orderIndex = Number(maxOrderRow?.maxOrder ?? 0) + 1;
+  const item = await prisma.playlistItem.create({
+    data: {
+      title,
+      artist,
+      url,
+      rating,
+      orderIndex: (maxOrder._max.orderIndex || 0) + 1
+    }
+  });
 
-  await prisma.$executeRawUnsafe(
-    `
-      INSERT INTO PlaylistItem (id, title, artist, url, rating, orderIndex)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `,
-    id,
-    title,
-    artist,
-    url,
-    rating,
-    orderIndex
-  );
-
-  const [item] = (await prisma.$queryRawUnsafe(
-    `
-      SELECT id, title, artist, url, COALESCE(rating, 0) AS rating, orderIndex
-      FROM PlaylistItem
-      WHERE id = ?
-      LIMIT 1
-    `,
-    id
-  )) as PlaylistRow[];
-
-  return NextResponse.json(normalizePlaylistRow(item), { status: 201 });
+  return NextResponse.json(item, { status: 201 });
 }

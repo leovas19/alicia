@@ -3,6 +3,8 @@ import { formatDate } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 import { ensureSeedData } from "@/lib/seed";
 
+export const dynamic = "force-dynamic";
+
 export default async function FreeSpacePage() {
   await ensureSeedData();
   const [messages, challenges] = await Promise.all([
