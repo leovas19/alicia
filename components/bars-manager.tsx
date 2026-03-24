@@ -9,6 +9,7 @@ type BarsManagerProps = {
   hasInitialized: boolean;
 };
 
+
 export function BarsManager({
   trustValue,
   relationshipValue,
